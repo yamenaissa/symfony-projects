@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+{% block title %}Modifier Article{% endblock %}
+{% block body %}
+    <h1 class="mt-4 mb-4">Modifier l'article</h1>
+    
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+    {{ form_end(form) }}
+{% endblock %}
