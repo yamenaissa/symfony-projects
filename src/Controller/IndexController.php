@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Article;
+use App\Form\ArticleType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -45,26 +46,16 @@ class IndexController extends AbstractController
         return new Response('Article enregistré avec id ' . $article->getId());
     }
     
-    #[Route('/article/new', name: 'new_article', methods: ['GET', 'POST'])]
-    public function new(Request $request): Response
+    #[Route('/article/new', name: 'new_article')]
+    public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $article = new Article();
-        
-        $form = $this->createFormBuilder($article)
-            ->add('nom', TextType::class)
-            ->add('prix', NumberType::class)
-            ->add('save', SubmitType::class, [
-                'label' => 'Créer'
-            ])
-            ->getForm();
-            
+        $form = $this->createForm(ArticleType::class, $article);
         $form->handleRequest($request);
         
         if ($form->isSubmitted() && $form->isValid()) {
-            $article = $form->getData();
-            
-            $this->entityManager->persist($article);
-            $this->entityManager->flush();
+            $entityManager->persist($article);
+            $entityManager->flush();
             
             return $this->redirectToRoute('article_show');
         }
@@ -74,47 +65,41 @@ class IndexController extends AbstractController
         ]);
     }
 
-    #[Route('/article/edit/{id}', name: 'edit_article', methods: ['GET', 'POST'])]
-public function edit(Request $request, int $id): Response
-{
-    $article = $this->entityManager->getRepository(Article::class)->find($id);
-    
-    if (!$article) {
-        throw $this->createNotFoundException('Article non trouvé');
+    #[Route('/article/edit/{id}', name: 'edit_article')]
+    public function edit(Request $request, EntityManagerInterface $entityManager, int $id): Response
+    {
+        $article = $entityManager->getRepository(Article::class)->find($id);
+        
+        if (!$article) {
+            throw $this->createNotFoundException('Article not found');
+        }
+        
+        $form = $this->createForm(ArticleType::class, $article);
+        $form->handleRequest($request);
+        
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+            
+            return $this->redirectToRoute('article_show');
+        }
+        
+        return $this->render('articles/edit.html.twig', [
+            'form' => $form->createView()
+        ]);
     }
+    #[Route('/article/delete/{id}', name: 'delete_article')]
+    public function delete(int $id): Response
+    {
+        $article = $this->entityManager->getRepository(Article::class)->find($id);
     
-    $form = $this->createFormBuilder($article)
-        ->add('nom', TextType::class)
-        ->add('prix', NumberType::class)
-        ->add('save', SubmitType::class, [
-            'label' => 'Modifier'
-        ])
-        ->getForm();
-        
-    $form->handleRequest($request);
+        if (!$article) {
+            throw $this->createNotFoundException('Article non trouvé');
+        }
     
-    if ($form->isSubmitted() && $form->isValid()) {
+        $this->entityManager->remove($article);
         $this->entityManager->flush();
-        
+    
         return $this->redirectToRoute('article_show');
     }
-    
-    return $this->render('articles/edit.html.twig', [
-        'form' => $form->createView()
-    ]);
-}
-#[Route('/article/delete/{id}', name: 'delete_article')]
-public function delete(int $id): Response
-{
-    $article = $this->entityManager->getRepository(Article::class)->find($id);
-    
-    if (!$article) {
-        throw $this->createNotFoundException('Article non trouvé');
-    }
-    
-    $this->entityManager->remove($article);
-    $this->entityManager->flush();
-    
-    return $this->redirectToRoute('article_show');
-}
+
 }
