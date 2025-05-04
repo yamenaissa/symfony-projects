@@ -101,5 +101,12 @@ class IndexController extends AbstractController
     
         return $this->redirectToRoute('article_show');
     }
+    #[Route('/articles/{id}', name: 'show_article')]
+public function show(Article $article): Response
+{
+    return $this->render('articles/show.html.twig', [
+        'article' => $article,
+    ]);
+}
 
 }

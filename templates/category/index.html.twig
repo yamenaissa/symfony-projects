@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des catégories{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>Liste des catégories</h1>
+        
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
+        
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Titre</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in categories %}
+                    <tr>
+                        <td>{{ category.id }}</td>
+                        <td>{{ category.titre }}</td>
+                        <td>{{ category.description }}</td>
+                        <td>
+                            <a href="#" class="btn btn-sm btn-info">Voir</a>
+                            <a href="#" class="btn btn-sm btn-primary">Modifier</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <a href="{{ path('new_category') }}" class="btn btn-success">Ajouter une catégorie</a>
+    </div>
+{% endblock %}

@@ -30,6 +30,10 @@ class Article
     )]
     private ?string $prix = null;
 
+    #[ORM\ManyToOne(inversedBy: 'articles')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Category $category = null;
+
     // getters and setters...
     
     public function getId(): ?int
@@ -56,6 +60,18 @@ class Article
     public function setPrix(string $prix): self
     {
         $this->prix = $prix;
+        return $this;
+    }
+
+    public function getCategory(): ?Category
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?Category $category): static
+    {
+        $this->category = $category;
+
         return $this;
     }
 }
